@@ -16,7 +16,6 @@ export default new Vuex.Store({
   mutations: {
     decrease(state, { unit }) {
       state[unit] -= 1;
-      state[unit] -= 1;
     },
     increase(state, { unit }) {
       state[unit] += 1;
