@@ -1,10 +1,10 @@
 <template>
-  <div class="calendar">
-    <div class="calendar__bar">
+  <div :class="$style.calendar">
+    <div :class="$style.calendar__bar">
       <CalendarBar :year="year" :month="month" />
     </div>
 
-    <div class="calendar__schedule">
+    <div :class="$style.calendar__schedule">
       <CalendarSchedule :year="year" :month="month" :day="day" :holiday="holiday" />
     </div>
   </div>
@@ -42,7 +42,7 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss" module>
 .calendar {
   display: grid;
   grid-template-rows: auto 1fr;

@@ -1,5 +1,5 @@
 <template>
-  <button type="button" class="button" @click="handleClick">
+  <button type="button" :class="$style.button" @click="handleClick">
     <slot />
   </button>
 </template>
@@ -14,17 +14,17 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss" module>
 .button {
   background-color: transparent;
   border: 1px solid #dadce0;
   border-radius: 4px;
   cursor: pointer;
   font-size: 12px;
-  line-height: 1;
   height: 100%;
-  padding: 8px;
+  line-height: 1;
   outline: none;
+  padding: 8px;
   width: 100%;
 
   &:hover {
