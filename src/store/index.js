@@ -11,6 +11,7 @@ export default new Vuex.Store({
     holiday: {},
     month: today.getMonth() + 1,
     year: today.getFullYear(),
+    day: today.getDate(),
   },
 
   mutations: {
