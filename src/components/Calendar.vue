@@ -5,7 +5,7 @@
     </div>
 
     <div class="calendar__schedule">
-      <CalendarSchedule :year="year" :month="month" :holiday="holiday" />
+      <CalendarSchedule :year="year" :month="month" :day="day" :holiday="holiday" />
     </div>
   </div>
 </template>
@@ -25,6 +25,7 @@ export default {
     ...mapState({
       year: 'year',
       month: 'month',
+      day: 'day',
       holiday: 'holiday',
     }),
   },

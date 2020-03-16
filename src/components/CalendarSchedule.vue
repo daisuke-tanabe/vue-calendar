@@ -1,18 +1,10 @@
 <template>
   <div ref="schedule" class="schedule">
-    <div v-for="(schedule, index) in schedules" :key="index" :class="`cell${schedule.current ? '' : ' cell--gray'}`">
-      <template v-if="index < 7">
-        <div class="cell__head">
-          {{ weeks[index] }}
-        </div>
-      </template>
+    <div v-for="(schedule, index) in schedules" :key="index" :class="`cell${!schedule.current ? ' cell--gray' : ''}`">
+      <div v-if="schedule.week" class="cell__head">{{ schedule.week }}</div>
       <div class="cell__body">
-        <div class="day">
-          {{ schedule.day }}
-        </div>
-        <div v-if="schedule.holiday" class="holiday">
-          {{ schedule.holiday }}
-        </div>
+        <div :class="`day${isToday(schedule.day) ? ' day--circle' : ''}`">{{ schedule.day }}</div>
+        <div v-if="schedule.holiday" class="holiday">{{ schedule.holiday }}</div>
       </div>
     </div>
   </div>
@@ -42,11 +34,16 @@ export default {
       type: Number,
       required: true,
     },
+    day: {
+      type: Number,
+      required: true,
+    },
     holiday: {
       type: Object,
       required: true,
     },
   },
+
   data() {
     return {
       weeks: ['日', '月', '火', '水', '木', '金', '土'],
@@ -92,11 +89,11 @@ export default {
       });
     },
     // 今月、先月、翌月のスケジュールをマージしたもの
-    schedules: ({ scheduleOfLastMonth, scheduleOfMonth, scheduleOfNextMonth }) => [
-      ...scheduleOfLastMonth,
-      ...scheduleOfMonth,
-      ...scheduleOfNextMonth,
-    ],
+    schedules: ({ scheduleOfLastMonth, scheduleOfMonth, scheduleOfNextMonth, weeks }) =>
+      [...scheduleOfLastMonth, ...scheduleOfMonth, ...scheduleOfNextMonth].map((schedule, index) => ({
+        ...schedule,
+        week: index < 7 ? weeks[index] : '',
+      })),
   },
 
   watch: {
@@ -119,6 +116,9 @@ export default {
           },
         );
       });
+    },
+    isToday(day) {
+      return this.day === day;
     },
   },
 };
@@ -158,6 +158,11 @@ export default {
   font-size: 12px;
   line-height: 1;
   text-align: center;
+
+  &--circle {
+    color: #f00d4f;
+    font-weight: bold;
+  }
 }
 
 .holiday {
