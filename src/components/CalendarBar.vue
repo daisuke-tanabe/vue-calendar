@@ -1,16 +1,16 @@
 <template>
-  <div class="bar">
-    <div class="bar__button">
+  <div :class="$style.bar">
+    <div :class="$style.bar__button">
       <VButton @on-click="onClickResetButton">
         今日
       </VButton>
     </div>
 
-    <div class="bar__pager">
+    <div :class="$style.bar__pager">
       <CalendarBarPager @on-click-next-page="onClickNextPage" @on-click-previous-page="onClickPreviousPage" />
     </div>
 
-    <div class="bar__date">
+    <div :class="$style.bar__date">
       {{ date }}
     </div>
   </div>
@@ -86,7 +86,7 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss" module>
 .bar {
   align-items: center;
   display: flex;

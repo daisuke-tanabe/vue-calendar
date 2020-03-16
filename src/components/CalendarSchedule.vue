@@ -1,10 +1,14 @@
 <template>
-  <div ref="schedule" class="schedule">
-    <div v-for="(schedule, index) in schedules" :key="index" :class="`cell${!schedule.current ? ' cell--gray' : ''}`">
-      <div v-if="schedule.week" class="cell__head">{{ schedule.week }}</div>
-      <div class="cell__body">
-        <div :class="`day${isToday(schedule.day) ? ' day--circle' : ''}`">{{ schedule.day }}</div>
-        <div v-if="schedule.holiday" class="holiday">{{ schedule.holiday }}</div>
+  <div ref="schedule" :class="$style.schedule">
+    <div
+      v-for="(schedule, index) in schedules"
+      :key="index"
+      :class="[$style.cell, { [$style['cell--gray']]: !schedule.current }]"
+    >
+      <div v-if="schedule.week" :class="$style.cell__head">{{ schedule.week }}</div>
+      <div :class="$style.cell__body">
+        <div :class="[$style.day, { [$style['day--circle']]: isToday(schedule.day) }]">{{ schedule.day }}</div>
+        <div v-if="schedule.holiday" :class="$style.holiday">{{ schedule.holiday }}</div>
       </div>
     </div>
   </div>
@@ -124,7 +128,7 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss" module>
 .schedule {
   background-color: #dadce0;
   border: 1px solid #dadce0;
@@ -145,8 +149,8 @@ export default {
 
 .cell__head {
   font-size: 10px;
-  padding: 12px 12px 4px;
   line-height: 1;
+  padding: 12px 12px 4px;
   text-align: center;
 }
 
