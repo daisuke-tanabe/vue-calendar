@@ -1,11 +1,17 @@
 const path = require('path');
+const Sass = require('sass');
+const Fiber = require('fibers');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
+
+const mode = process.env.NODE_ENV;
+const isProduction = mode === 'production';
 
 const entry = {
   'index.js': './index.js',
 };
 
 module.exports = {
+  mode,
   context: path.resolve(__dirname, 'src'),
   entry,
   output: {
@@ -20,28 +26,37 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.scss$/,
-        exclude: /node_modules/,
-        use: ['vue-style-loader', 'css-loader', 'sass-loader'],
-      },
-      {
         test: /.vue$/,
         loader: 'vue-loader',
-        options: {
-          loaders: {
-            css: {
-              loader: 'css-loader',
-            },
-            scss: {
-              loader: 'sass-loader',
-            },
-          },
-        },
       },
       {
         test: /\.js$/,
         exclude: /node_modules/,
         use: ['babel-loader'],
+      },
+      {
+        test: /\.scss$/,
+        exclude: /node_modules/,
+        use: [
+          'vue-style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              modules: {
+                localIdentName: `${isProduction ? '[name]-[local]-' : ''}[sha512:hash:base64:5]`,
+              },
+            },
+          },
+          {
+            loader: 'sass-loader',
+            options: {
+              implementation: Sass,
+              sassOptions: {
+                fiber: Fiber,
+              },
+            },
+          },
+        ],
       },
     ],
   },

@@ -1,9 +1,9 @@
 <template>
-  <div class="pager">
-    <button class="pager__button" type="button" @click="handlePreviousPageClick">
+  <div :class="$style.pager">
+    <button :class="$style.pager__button" type="button" @click="handlePreviousPageClick">
       ＜
     </button>
-    <button class="pager__button" type="button" @click="handleNextPageClick">
+    <button :class="$style.pager__button" type="button" @click="handleNextPageClick">
       ＞
     </button>
   </div>
@@ -22,7 +22,7 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss" module>
 .pager {
   align-items: center;
   display: flex;
