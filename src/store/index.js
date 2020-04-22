@@ -33,7 +33,7 @@ export default new Vuex.Store({
   },
 
   actions: {
-    browsing({ commit }) {
+    fetchHoliday({ commit }) {
       HolidaysDateRepository.get().then(({ data }) => {
         commit('setHoliday', { data });
       });

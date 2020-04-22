@@ -1,11 +1,11 @@
 import './assets/scss/reset.scss';
 import Vue from 'vue';
-import Calendar from './components/Calendar.vue';
+import Home from './components/pages/Home.vue';
 import store from './store';
 
 new Vue({
-  el: '#js-calendar',
-  components: { Calendar },
+  el: '#js-app',
+  components: { Home },
   store,
-  template: '<Calendar />',
+  template: '<Home />',
 });

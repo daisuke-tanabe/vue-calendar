@@ -1,27 +1,35 @@
 <template>
-  <div ref="schedule" :class="$style.schedule">
-    <div
-      v-for="(schedule, index) in schedules"
-      :key="index"
-      :class="[$style.cell, { [$style['cell--gray']]: !schedule.current }]"
-    >
-      <div v-if="schedule.week" :class="$style.cell__head">{{ schedule.week }}</div>
-      <div :class="$style.cell__body">
-        <div :class="[$style.day, { [$style['day--circle']]: isToday(schedule.day) }]">{{ schedule.day }}</div>
-        <div v-if="schedule.holiday" :class="$style.holiday">{{ schedule.holiday }}</div>
+  <div ref="schedule" :class="$style.wrapper">
+    <div :class="$style.calendar">
+      <div
+        v-for="(schedule, index) in schedules"
+        :key="index"
+        :class="[$style.calendar__cell, { [$style['calendar__cell--gray']]: !schedule.current }]"
+      >
+        <div :class="$style.cell">
+          <div v-if="schedule.week" :class="$style.cell__week">{{ schedule.week }}</div>
+          <div :class="[$style.cell__number, { [$style['cell__number--active']]: isToday(schedule.day) }]">
+            {{ schedule.day }}
+          </div>
+          <div v-if="schedule.holiday" :class="$style.cell__label">{{ schedule.holiday }}</div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { mapActions, mapState } from 'vuex';
 import { TweenMax } from 'gsap';
+
+// 1月に最大42日分表示する（最大6週間）
+const MAX_DISPLAY_DAYS = 42;
 
 function zeroPadding(num) {
   return `${num}`.padStart(2, '0');
 }
 
-function createSchedule({ year, month, days, current, holiday }) {
+function makeSchedule({ year, month, days, current, holiday }) {
   return days.map(day => {
     const date = `${year}-${zeroPadding(month)}-${zeroPadding(day)}`;
     return { day, current, holiday: holiday[date] || '' };
@@ -29,25 +37,6 @@ function createSchedule({ year, month, days, current, holiday }) {
 }
 
 export default {
-  props: {
-    year: {
-      type: Number,
-      required: true,
-    },
-    month: {
-      type: Number,
-      required: true,
-    },
-    day: {
-      type: Number,
-      required: true,
-    },
-    holiday: {
-      type: Object,
-      required: true,
-    },
-  },
-
   data() {
     return {
       weeks: ['日', '月', '火', '水', '木', '金', '土'],
@@ -55,10 +44,16 @@ export default {
   },
 
   computed: {
+    ...mapState({
+      year: 'year',
+      month: 'month',
+      day: 'day',
+      holiday: 'holiday',
+    }),
     // 今月のスケジュール
     scheduleOfMonth: ({ year, month, holiday }) => {
       const days = [...Array(new Date(year, month, 0).getDate()).keys()].map(index => index + 1);
-      return createSchedule({
+      return makeSchedule({
         year,
         month,
         days,
@@ -71,7 +66,7 @@ export default {
       const weekOfFirstDay = new Date(year, month - 1, 1).getDay();
       const dayOfLatMonth = new Date(year, month - 1, 0).getDate();
       const days = [...Array(weekOfFirstDay).keys()].map(index => dayOfLatMonth - index).reverse();
-      return createSchedule({
+      return makeSchedule({
         year,
         month: month - 1,
         days,
@@ -81,10 +76,9 @@ export default {
     },
     // 翌月のはみだしスケジュール
     scheduleOfNextMonth: ({ year, month, holiday, scheduleOfMonth, scheduleOfLastMonth }) => {
-      // 初月のはみだし日数(最大6週間あるので最大値は42)
-      const firstDay = 42 - scheduleOfMonth.length - scheduleOfLastMonth.length;
+      const firstDay = MAX_DISPLAY_DAYS - scheduleOfMonth.length - scheduleOfLastMonth.length;
       const days = [...Array(firstDay).keys()].map(index => index + 1);
-      return createSchedule({
+      return makeSchedule({
         year,
         month: month + 1,
         days,
@@ -96,18 +90,25 @@ export default {
     schedules: ({ scheduleOfLastMonth, scheduleOfMonth, scheduleOfNextMonth, weeks }) =>
       [...scheduleOfLastMonth, ...scheduleOfMonth, ...scheduleOfNextMonth].map((schedule, index) => ({
         ...schedule,
-        week: index < 7 ? weeks[index] : '',
+        week: index < weeks.length ? weeks[index] : '',
       })),
   },
 
   watch: {
     month() {
-      this.enter();
+      this.calenderAnimation();
     },
   },
 
+  created() {
+    this.fetchHoliday();
+  },
+
   methods: {
-    enter() {
+    ...mapActions({
+      fetchHoliday: 'fetchHoliday',
+    }),
+    calenderAnimation() {
       requestAnimationFrame(() => {
         TweenMax.fromTo(
           this.$refs.schedule,
@@ -129,8 +130,15 @@ export default {
 </script>
 
 <style lang="scss" module>
-.schedule {
-  background-color: #dadce0;
+.wrapper {
+  overflow: hidden;
+  padding: 16px;
+}
+
+// calendar
+// ------------------------------
+.calendar {
+  background: #dadce0;
   border: 1px solid #dadce0;
   display: grid;
   gap: 1px;
@@ -138,43 +146,45 @@ export default {
   height: 100%;
 }
 
-.cell {
+.calendar__cell {
   background-color: #ffffff;
-  color: #333333;
 
   &--gray {
     background-color: #f3f3f3;
   }
 }
 
-.cell__head {
+// cell
+// ------------------------------
+.cell {
+  color: #333333;
   font-size: 10px;
-  line-height: 1;
-  padding: 12px 12px 4px;
-  text-align: center;
-}
-
-.cell__body {
   padding: 12px;
 }
 
-.day {
+.cell__week {
+  margin-bottom: 4px;
+  text-align: center;
+}
+
+.cell__number {
   font-size: 12px;
   line-height: 1;
   text-align: center;
 
-  &--circle {
+  &--active {
     color: #f00d4f;
     font-weight: bold;
   }
 }
 
-.holiday {
-  background-color: #ffae02;
+.cell__label {
+  background-color: #f9a802;
   border-radius: 3px;
   color: #ffffff;
   font-size: 12px;
+  line-height: 1.4;
   margin-top: 8px;
-  padding: 3px 8px;
+  padding: 4px 8px;
 }
 </style>
