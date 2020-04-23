@@ -88,7 +88,6 @@ export default new Vuex.Store({
       commit('applyTask', name);
     },
     removeTask({ commit }, id) {
-      console.log(id);
       commit('removeTask', id);
     },
   },
