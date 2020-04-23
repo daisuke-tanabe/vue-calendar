@@ -173,8 +173,8 @@ export default {
 // cell
 // ------------------------------
 .cell {
-  padding: 12px;
   height: 100%;
+  padding: 12px;
 }
 
 .cell__week {
@@ -207,8 +207,8 @@ export default {
   font-size: 12px;
   line-height: 1.4;
   margin-top: 8px;
-  position: relative;
   padding: 4px 24px 4px 8px;
+  position: relative;
 
   &:not(:first-child) {
     margin-top: 8px;
@@ -224,8 +224,8 @@ export default {
 .cell__taskItemRemoveButton {
   cursor: pointer;
   position: absolute;
-  top: 50%;
   right: 8px;
+  top: 50%;
   transform: translateY(-50%);
 }
 
