@@ -30,7 +30,9 @@ export default {
   },
 
   computed: {
-    ...mapState(['targetDate']),
+    ...mapState({
+      targetDate: 'targetDate',
+    }),
   },
 
   methods: {
