@@ -5,6 +5,7 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
 const mode = process.env.NODE_ENV;
 const isProduction = mode === 'production';
+const excludeNodeModules = /node_modules/;
 
 const entry = {
   'index.js': './index.js',
@@ -26,17 +27,24 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /.vue$/,
+        enforce: 'pre',
+        test: /\.(vue|js)$/,
+        exclude: excludeNodeModules,
+        loader: 'eslint-loader',
+      },
+      {
+        test: /\.vue$/,
+        exclude: excludeNodeModules,
         loader: 'vue-loader',
       },
       {
         test: /\.js$/,
-        exclude: /node_modules/,
-        use: ['babel-loader'],
+        exclude: excludeNodeModules,
+        loader: 'babel-loader',
       },
       {
         test: /\.scss$/,
-        exclude: /node_modules/,
+        exclude: excludeNodeModules,
         use: [
           'vue-style-loader',
           {
@@ -45,6 +53,12 @@ module.exports = {
               modules: {
                 localIdentName: `${isProduction ? '[name]-[local]-' : ''}[sha512:hash:base64:5]`,
               },
+            },
+          },
+          {
+            loader: 'postcss-loader',
+            options: {
+              ident: 'postcss',
             },
           },
           {
