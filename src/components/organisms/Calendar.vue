@@ -115,11 +115,31 @@ export default {
     this.fetchHoliday();
   },
 
+  mounted() {
+    const TASKS = 'tasks';
+    const localStorageTasks = localStorage.getItem(TASKS);
+    if (localStorageTasks) {
+      try {
+        this.setTasks(JSON.parse(localStorageTasks));
+      } catch (error) {
+        // localStorageが壊れているなら削除
+        localStorage.removeItem(TASKS);
+      }
+    }
+    this.$store.watch(
+      state => state.tasks,
+      value => {
+        localStorage.setItem(TASKS, JSON.stringify(value));
+      },
+    );
+  },
+
   methods: {
     ...mapActions({
       fetchHoliday: 'fetchHoliday',
       toggleModal: 'toggleModal',
       removeTask: 'removeTask',
+      setTasks: 'setTasks',
     }),
     calenderAnimation() {
       requestAnimationFrame(() => {

@@ -20,7 +20,9 @@ export default {
   },
 
   computed: {
-    ...mapState(['visibleModal']),
+    ...mapState({
+      visibleModal: 'visibleModal',
+    }),
   },
 };
 </script>

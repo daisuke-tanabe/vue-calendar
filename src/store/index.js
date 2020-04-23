@@ -39,6 +39,9 @@ export default new Vuex.Store({
     updateTargetDate(state, date) {
       state.targetDate = date;
     },
+    setTasks(state, tasks) {
+      state.tasks = tasks;
+    },
     applyTask(state, name) {
       state.tasks = [
         ...state.tasks,
@@ -83,6 +86,9 @@ export default new Vuex.Store({
     toggleModal({ commit }, { isVisible, date }) {
       commit('updateTargetDate', date);
       commit('updateVisibleModal', isVisible);
+    },
+    setTasks({ commit }, tasks) {
+      commit('setTasks', tasks);
     },
     applyTask({ commit }, name) {
       commit('applyTask', name);
