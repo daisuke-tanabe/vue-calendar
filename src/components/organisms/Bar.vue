@@ -1,42 +1,26 @@
 <template>
-  <div :class="$style.bar">
-    <div :class="$style.bar__button">
-      <VButton @on-click="onClickResetButton">
-        今日
-      </VButton>
+  <div :class="$style.wrapper">
+    <div :class="$style.pageResetButton">
+      <VButton text="今日" @on-click="onClickResetButton" />
     </div>
 
-    <div :class="$style.bar__pager">
-      <CalendarBarPager @on-click-next-page="onClickNextPage" @on-click-previous-page="onClickPreviousPage" />
+    <div :class="$style.pager">
+      <button :class="$style.pager__button" type="button" @click="onClickPreviousPage">＜</button>
+      <button :class="$style.pager__button" type="button" @click="onClickNextPage">＞</button>
     </div>
 
-    <div :class="$style.bar__date">
-      {{ date }}
-    </div>
+    <div :class="$style.date">{{ date }}</div>
   </div>
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import { mapActions, mapState } from 'vuex';
 import { TweenMax } from 'gsap';
-import CalendarBarPager from './CalendarBarPager.vue';
-import VButton from './VButton.vue';
+import VButton from '../atoms/VButton.vue';
 
 export default {
   components: {
-    CalendarBarPager,
     VButton,
-  },
-
-  props: {
-    year: {
-      type: Number,
-      required: true,
-    },
-    month: {
-      type: Number,
-      required: true,
-    },
   },
 
   data() {
@@ -47,6 +31,10 @@ export default {
   },
 
   computed: {
+    ...mapState({
+      year: 'year',
+      month: 'month',
+    }),
     date: ({ animatedYear, animatedMonth }) => `${animatedYear}年${animatedMonth}月`,
     animatedYear: ({ tweenedYear }) => tweenedYear.toFixed(0),
     animatedMonth: ({ tweenedMonth }) => tweenedMonth.toFixed(0),
@@ -87,23 +75,43 @@ export default {
 </script>
 
 <style lang="scss" module>
-.bar {
+.wrapper {
   align-items: center;
+  border-bottom: 1px solid #dadce0;
   display: flex;
-  margin: 0 auto;
+  padding: 16px;
 }
 
-.bar__button {
+// pageResetButton
+// ------------------------------
+.pageResetButton {
   flex: 0 1 64px;
   width: 64px;
 }
 
-.bar__pager {
+// pager
+// ------------------------------
+.pager {
   flex: 0 1 auto;
   margin-left: 32px;
 }
 
-.bar__date {
+.pager__button {
+  background: none;
+  border: none;
+  font-size: 16px;
+  font-weight: bold;
+  outline: none;
+  padding-top: 3px;
+
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+// date
+// ------------------------------
+.date {
   flex: 0 1 auto;
   font-size: 20px;
   margin-left: 20px;
