@@ -6,10 +6,16 @@
         :key="index"
         :class="[$style.calendar__cell, { [$style['calendar__cell--gray']]: !schedule.current }]"
       >
-        <div :class="$style.cell">
+        <div :class="$style.cell" @click.self="showModal(schedule.date)">
           <div v-if="schedule.week" :class="$style.cell__week">{{ schedule.week }}</div>
           <div :class="[$style.cell__number, { [$style['cell__number--active']]: isToday(schedule.day) }]">
             {{ schedule.day }}
+          </div>
+          <div :class="$style.cell__task">
+            <div v-for="task in schedule.tasks" :key="task.id" :class="$style.cell__taskItem">
+              <div :class="$style.cell__taskItemName">{{ task.name }}</div>
+              <div :class="$style.cell__taskItemRemoveButton" @click="removeTask(task.id)">×</div>
+            </div>
           </div>
           <div v-if="schedule.holiday" :class="$style.cell__label">{{ schedule.holiday }}</div>
         </div>
@@ -29,10 +35,11 @@ function zeroPadding(num) {
   return `${num}`.padStart(2, '0');
 }
 
-function makeSchedule({ year, month, days, current, holiday }) {
+function makeSchedule({ year, month, days, current, holiday, tasks }) {
   return days.map(day => {
     const date = `${year}-${zeroPadding(month)}-${zeroPadding(day)}`;
-    return { day, current, holiday: holiday[date] || '' };
+    const filteredByDateTask = tasks.filter(task => task.date === date);
+    return { day, current, date, holiday: holiday[date] || '', tasks: filteredByDateTask };
   });
 }
 
@@ -49,20 +56,22 @@ export default {
       month: 'month',
       day: 'day',
       holiday: 'holiday',
+      tasks: 'tasks',
     }),
     // 今月のスケジュール
-    scheduleOfMonth: ({ year, month, holiday }) => {
+    scheduleOfMonth: ({ year, month, holiday, tasks }) => {
       const days = [...Array(new Date(year, month, 0).getDate()).keys()].map(index => index + 1);
       return makeSchedule({
         year,
         month,
         days,
+        tasks,
         current: true,
         holiday,
       });
     },
     // 先月のはみだしスケジュール
-    scheduleOfLastMonth: ({ year, month, holiday }) => {
+    scheduleOfLastMonth: ({ year, month, holiday, tasks }) => {
       const weekOfFirstDay = new Date(year, month - 1, 1).getDay();
       const dayOfLatMonth = new Date(year, month - 1, 0).getDate();
       const days = [...Array(weekOfFirstDay).keys()].map(index => dayOfLatMonth - index).reverse();
@@ -70,18 +79,20 @@ export default {
         year,
         month: month - 1,
         days,
+        tasks,
         current: false,
         holiday,
       });
     },
     // 翌月のはみだしスケジュール
-    scheduleOfNextMonth: ({ year, month, holiday, scheduleOfMonth, scheduleOfLastMonth }) => {
+    scheduleOfNextMonth: ({ year, month, holiday, tasks, scheduleOfMonth, scheduleOfLastMonth }) => {
       const firstDay = MAX_DISPLAY_DAYS - scheduleOfMonth.length - scheduleOfLastMonth.length;
       const days = [...Array(firstDay).keys()].map(index => index + 1);
       return makeSchedule({
         year,
         month: month + 1,
         days,
+        tasks,
         current: false,
         holiday,
       });
@@ -107,6 +118,8 @@ export default {
   methods: {
     ...mapActions({
       fetchHoliday: 'fetchHoliday',
+      toggleModal: 'toggleModal',
+      removeTask: 'removeTask',
     }),
     calenderAnimation() {
       requestAnimationFrame(() => {
@@ -124,6 +137,9 @@ export default {
     },
     isToday(day) {
       return this.day === day;
+    },
+    showModal(date) {
+      this.toggleModal({ date, isVisible: true });
     },
   },
 };
@@ -157,12 +173,12 @@ export default {
 // cell
 // ------------------------------
 .cell {
-  color: #333333;
-  font-size: 10px;
   padding: 12px;
+  height: 100%;
 }
 
 .cell__week {
+  font-size: 10px;
   margin-bottom: 4px;
   text-align: center;
 }
@@ -178,6 +194,41 @@ export default {
   }
 }
 
+.cell__task {
+  color: #333;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+.cell__taskItem {
+  background-color: #2ac8e2;
+  border-radius: 3px;
+  color: #ffffff;
+  font-size: 12px;
+  line-height: 1.4;
+  margin-top: 8px;
+  position: relative;
+  padding: 4px 24px 4px 8px;
+
+  &:not(:first-child) {
+    margin-top: 8px;
+  }
+}
+
+.cell__taskItemName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cell__taskItemRemoveButton {
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+}
+
 .cell__label {
   background-color: #f9a802;
   border-radius: 3px;
@@ -185,6 +236,9 @@ export default {
   font-size: 12px;
   line-height: 1.4;
   margin-top: 8px;
+  overflow: hidden;
   padding: 4px 8px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>
