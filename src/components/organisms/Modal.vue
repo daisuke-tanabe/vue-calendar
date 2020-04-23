@@ -52,10 +52,10 @@ export default {
 <style lang="scss" module>
 .wrapper {
   align-items: center;
-  justify-content: center;
   display: flex;
-  position: fixed;
   height: 100%;
+  justify-content: center;
+  position: fixed;
   width: 100%;
 }
 
@@ -68,33 +68,33 @@ export default {
 
 .modal {
   align-items: center;
-  justify-content: center;
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 24px 38px 3px rgba(#000, 0.14), 0 9px 46px 8px rgba(#000, 0.12), 0 11px 15px -7px rgba(#000, 0.2);
-  height: 320px;
   display: flex;
   flex-direction: column;
+  height: 320px;
+  justify-content: center;
   position: relative;
   width: 400px;
 }
 
 .modal__closeButton {
-  justify-content: center;
-  font-size: 20px;
   display: flex;
+  font-size: 20px;
   height: 40px;
+  justify-content: center;
   position: absolute;
-  top: 6px;
   right: 6px;
+  top: 6px;
   width: 40px;
 }
 
 .modal__saveButton {
-  position: absolute;
   bottom: 8px;
-  right: 8px;
   height: 36px;
+  position: absolute;
+  right: 8px;
   width: 76px;
 }
 
