@@ -28,16 +28,16 @@
 import { mapActions, mapState } from 'vuex';
 import { TweenMax } from 'gsap';
 
-// 1月に最大42日分表示する（最大6週間）
-const MAX_DISPLAY_DAYS = 42;
+// 1月に最大42日分表示する（6週間 * 7 = 42）
+const MAX_DAYS_OF_MONTH = 42;
 
-function zeroPadding(num) {
+function addZeroPadding(num) {
   return `${num}`.padStart(2, '0');
 }
 
 function makeSchedule({ year, month, days, current, holiday, tasks }) {
   return days.map(day => {
-    const date = `${year}-${zeroPadding(month)}-${zeroPadding(day)}`;
+    const date = `${year}-${addZeroPadding(month)}-${addZeroPadding(day)}`;
     const filteredByDateTask = tasks.filter(task => task.date === date);
     return { day, current, date, holiday: holiday[date] || '', tasks: filteredByDateTask };
   });
@@ -58,51 +58,46 @@ export default {
       holiday: 'holiday',
       tasks: 'tasks',
     }),
-    // 今月のスケジュール
-    scheduleOfMonth: ({ year, month, holiday, tasks }) => {
-      const days = [...Array(new Date(year, month, 0).getDate()).keys()].map(index => index + 1);
-      return makeSchedule({
+    // 今月、先月、翌月のスケジュールをマージしたもの
+    schedules: ({ year, month, holiday, tasks, weeks }) => {
+      // 今月のスケジュール
+      const scheduleOfMonth = makeSchedule({
         year,
         month,
-        days,
+        days: [...Array(new Date(year, month, 0).getDate()).keys()].map(index => index + 1),
         tasks,
         current: true,
         holiday,
       });
-    },
-    // 先月のはみだしスケジュール
-    scheduleOfLastMonth: ({ year, month, holiday, tasks }) => {
+
+      // 先月のはみだしスケジュール
       const weekOfFirstDay = new Date(year, month - 1, 1).getDay();
       const dayOfLatMonth = new Date(year, month - 1, 0).getDate();
-      const days = [...Array(weekOfFirstDay).keys()].map(index => dayOfLatMonth - index).reverse();
-      return makeSchedule({
+      const scheduleOfLastMonth = makeSchedule({
         year,
         month: month - 1,
-        days,
+        days: [...Array(weekOfFirstDay).keys()].map(index => dayOfLatMonth - index).reverse(),
         tasks,
         current: false,
         holiday,
       });
-    },
-    // 翌月のはみだしスケジュール
-    scheduleOfNextMonth: ({ year, month, holiday, tasks, scheduleOfMonth, scheduleOfLastMonth }) => {
-      const firstDay = MAX_DISPLAY_DAYS - scheduleOfMonth.length - scheduleOfLastMonth.length;
-      const days = [...Array(firstDay).keys()].map(index => index + 1);
-      return makeSchedule({
+
+      // 翌月のはみだしスケジュール
+      const firstDay = MAX_DAYS_OF_MONTH - scheduleOfMonth.length - scheduleOfLastMonth.length;
+      const scheduleOfNextMonth = makeSchedule({
         year,
         month: month + 1,
-        days,
+        days: [...Array(firstDay).keys()].map(index => index + 1),
         tasks,
         current: false,
         holiday,
       });
-    },
-    // 今月、先月、翌月のスケジュールをマージしたもの
-    schedules: ({ scheduleOfLastMonth, scheduleOfMonth, scheduleOfNextMonth, weeks }) =>
-      [...scheduleOfLastMonth, ...scheduleOfMonth, ...scheduleOfNextMonth].map((schedule, index) => ({
+
+      return [...scheduleOfLastMonth, ...scheduleOfMonth, ...scheduleOfNextMonth].map((schedule, index) => ({
         ...schedule,
         week: index < weeks.length ? weeks[index] : '',
-      })),
+      }));
+    },
   },
 
   watch: {
