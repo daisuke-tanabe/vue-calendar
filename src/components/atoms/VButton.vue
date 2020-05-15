@@ -10,14 +10,14 @@ export default {
       required: false,
       default: '',
     },
-    text: {
-      type: String,
-      required: true,
-    },
     styleObject: {
       type: Object,
       required: false,
       default: () => ({}),
+    },
+    text: {
+      type: String,
+      required: true,
     },
   },
 

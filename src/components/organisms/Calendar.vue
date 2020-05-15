@@ -1,25 +1,15 @@
 <template>
-  <div ref="schedule" :class="$style.wrapper">
-    <div :class="$style.calendar">
-      <div
-        v-for="(schedule, index) in schedules"
-        :key="index"
-        :class="[$style.calendar__cell, { [$style['calendar__cell--gray']]: !schedule.current }]"
-      >
-        <div :class="$style.cell" @click.self="showModal(schedule.date)">
-          <div v-if="schedule.week" :class="$style.cell__week">{{ schedule.week }}</div>
-          <div :class="[$style.cell__number, { [$style['cell__number--active']]: isToday(schedule.day) }]">
-            {{ schedule.day }}
-          </div>
-          <div :class="$style.cell__task">
-            <div v-for="task in schedule.tasks" :key="task.id" :class="$style.cell__taskItem">
-              <div :class="$style.cell__taskItemName">{{ task.name }}</div>
-              <div :class="$style.cell__taskItemRemoveButton" @click="removeTask(task.id)">×</div>
-            </div>
-          </div>
-          <div v-if="schedule.holiday" :class="$style.cell__label">{{ schedule.holiday }}</div>
-        </div>
-      </div>
+  <div ref="schedule" :class="$style.calendar">
+    <div :class="$style.calendar__container">
+      <CalendarCell
+        v-for="schedule in schedules"
+        :key="schedule.date"
+        :today="day"
+        :schedule="schedule"
+        @on-click-cell="showModal"
+        @on-click-remove-task-button="removeTask"
+        @on-click-task-overview-button="scaleCell"
+      />
     </div>
   </div>
 </template>
@@ -27,6 +17,7 @@
 <script>
 import { mapActions, mapState } from 'vuex';
 import { TweenMax } from 'gsap';
+import CalendarCell from './CalendarCell.vue';
 
 // 1月に最大42日分表示する（6週間 * 7 = 42）
 const MAX_DAYS_OF_MONTH = 42;
@@ -43,10 +34,17 @@ function makeSchedule({ year, month, days, current, holiday, tasks }) {
   });
 }
 
+function getOverviews() {
+  return [...Array(MAX_DAYS_OF_MONTH).keys()].map(() => false);
+}
+
 export default {
+  components: { CalendarCell },
+
   data() {
     return {
       weeks: ['日', '月', '火', '水', '木', '金', '土'],
+      overviews: getOverviews(),
     };
   },
 
@@ -59,7 +57,7 @@ export default {
       tasks: 'tasks',
     }),
     // 今月、先月、翌月のスケジュールをマージしたもの
-    schedules: ({ year, month, holiday, tasks, weeks }) => {
+    schedules: ({ year, month, holiday, tasks, weeks, overviews }) => {
       // 今月のスケジュール
       const scheduleOfMonth = makeSchedule({
         year,
@@ -95,7 +93,9 @@ export default {
 
       return [...scheduleOfLastMonth, ...scheduleOfMonth, ...scheduleOfNextMonth].map((schedule, index) => ({
         ...schedule,
-        week: index < weeks.length ? weeks[index] : '',
+        firstWeek: index < weeks.length,
+        overview: overviews[index],
+        week: weeks[index % 7],
       }));
     },
   },
@@ -132,9 +132,9 @@ export default {
   methods: {
     ...mapActions({
       fetchHoliday: 'fetchHoliday',
+      setTasks: 'setTasks',
       toggleModal: 'toggleModal',
       removeTask: 'removeTask',
-      setTasks: 'setTasks',
     }),
     calenderAnimation() {
       requestAnimationFrame(() => {
@@ -150,110 +150,39 @@ export default {
         );
       });
     },
-    isToday(day) {
-      return this.day === day;
+    scaleCell(date, $el) {
+      const scheduleIndex = this.schedules.findIndex(schedule => schedule.date === date);
+      this.overviews = this.overviews.map((overview, index) => index === scheduleIndex);
+      const bindEvent = {
+        click: event => {
+          if (!$el.contains(event.target)) {
+            this.overviews = this.overviews.map(() => false);
+            window.removeEventListener('click', bindEvent.click);
+          }
+        },
+      };
+      window.addEventListener('click', bindEvent.click);
     },
     showModal(date) {
-      this.toggleModal({ date, isVisible: true });
+      const isEnabledOverview = this.schedules.some(schedule => schedule.overview);
+      this.toggleModal({ date, isVisible: !isEnabledOverview });
     },
   },
 };
 </script>
 
 <style lang="scss" module>
-.wrapper {
+.calendar {
   overflow: hidden;
   padding: 16px;
 }
 
-// calendar
-// ------------------------------
-.calendar {
+.calendar__container {
   background: #dadce0;
   border: 1px solid #dadce0;
   display: grid;
   gap: 1px;
   grid-template-columns: repeat(7, minmax(40px, 1fr));
   height: 100%;
-}
-
-.calendar__cell {
-  background-color: #ffffff;
-
-  &--gray {
-    background-color: #f3f3f3;
-  }
-}
-
-// cell
-// ------------------------------
-.cell {
-  height: 100%;
-  padding: 12px;
-}
-
-.cell__week {
-  font-size: 10px;
-  margin-bottom: 4px;
-  text-align: center;
-}
-
-.cell__number {
-  font-size: 12px;
-  line-height: 1;
-  text-align: center;
-
-  &--active {
-    color: #f00d4f;
-    font-weight: bold;
-  }
-}
-
-.cell__task {
-  color: #333;
-  font-size: 12px;
-  margin-top: 8px;
-}
-
-.cell__taskItem {
-  background-color: #2ac8e2;
-  border-radius: 3px;
-  color: #ffffff;
-  font-size: 12px;
-  line-height: 1.4;
-  margin-top: 8px;
-  padding: 4px 24px 4px 8px;
-  position: relative;
-
-  &:not(:first-child) {
-    margin-top: 8px;
-  }
-}
-
-.cell__taskItemName {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.cell__taskItemRemoveButton {
-  cursor: pointer;
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.cell__label {
-  background-color: #f9a802;
-  border-radius: 3px;
-  color: #ffffff;
-  font-size: 12px;
-  line-height: 1.4;
-  margin-top: 8px;
-  overflow: hidden;
-  padding: 4px 8px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 </style>
