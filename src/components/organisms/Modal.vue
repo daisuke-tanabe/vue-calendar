@@ -16,7 +16,7 @@
 
 <script>
 import { mapActions, mapState } from 'vuex';
-import VButton from '../atoms/VButton.vue';
+import VButton from '~atoms/VButton.vue';
 
 export default {
   components: {

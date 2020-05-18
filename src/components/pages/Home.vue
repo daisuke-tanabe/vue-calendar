@@ -8,9 +8,9 @@
 
 <script>
 import { mapState } from 'vuex';
-import Bar from '../organisms/Bar.vue';
-import Calendar from '../organisms/Calendar.vue';
-import Modal from '../organisms/Modal.vue';
+import Bar from '~organisms/Bar.vue';
+import Calendar from '~organisms/Calendar.vue';
+import Modal from '~organisms/Modal.vue';
 
 export default {
   components: {

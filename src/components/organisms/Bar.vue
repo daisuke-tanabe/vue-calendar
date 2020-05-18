@@ -15,19 +15,11 @@
 
 <script>
 import { mapActions, mapState } from 'vuex';
-import { TweenMax } from 'gsap';
-import VButton from '../atoms/VButton.vue';
+import VButton from '~atoms/VButton.vue';
 
 export default {
   components: {
     VButton,
-  },
-
-  data() {
-    return {
-      tweenedYear: 0,
-      tweenedMonth: 0,
-    };
   },
 
   computed: {
@@ -35,24 +27,7 @@ export default {
       year: 'year',
       month: 'month',
     }),
-    date: ({ animatedYear, animatedMonth }) => `${animatedYear}年${animatedMonth}月`,
-    animatedYear: ({ tweenedYear }) => tweenedYear.toFixed(0),
-    animatedMonth: ({ tweenedMonth }) => tweenedMonth.toFixed(0),
-  },
-
-  watch: {
-    month: {
-      handler(value) {
-        TweenMax.to(this.$data, 0.3, { tweenedMonth: value });
-      },
-      immediate: true,
-    },
-    year: {
-      handler(value) {
-        TweenMax.to(this.$data, 0.3, { tweenedYear: value });
-      },
-      immediate: true,
-    },
+    date: ({ year, month }) => `${year}年${month}月`,
   },
 
   methods: {

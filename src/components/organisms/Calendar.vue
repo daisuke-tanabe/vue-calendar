@@ -16,8 +16,8 @@
 
 <script>
 import { mapActions, mapState } from 'vuex';
-import { TweenMax } from 'gsap';
-import CalendarCell from './CalendarCell.vue';
+import WEEKS from '~/constants/weeks';
+import CalendarCell from '~organisms/CalendarCell.vue';
 
 // 1月に最大42日分表示する（6週間 * 7 = 42）
 const MAX_DAYS_OF_MONTH = 42;
@@ -35,7 +35,7 @@ function makeSchedule({ year, month, days, current, holiday, tasks }) {
 }
 
 function getOverviews() {
-  return [...Array(MAX_DAYS_OF_MONTH).keys()].map(() => false);
+  return [...Array(MAX_DAYS_OF_MONTH)].map(() => false);
 }
 
 export default {
@@ -43,7 +43,7 @@ export default {
 
   data() {
     return {
-      weeks: ['日', '月', '火', '水', '木', '金', '土'],
+      weeks: WEEKS,
       overviews: getOverviews(),
     };
   },
@@ -59,7 +59,7 @@ export default {
     // 今月、先月、翌月のスケジュールをマージしたもの
     schedules: ({ year, month, holiday, tasks, weeks, overviews }) => {
       // 今月のスケジュール
-      const scheduleOfMonth = makeSchedule({
+      const scheduleMonth = makeSchedule({
         year,
         month,
         days: [...Array(new Date(year, month, 0).getDate()).keys()].map(index => index + 1),
@@ -71,7 +71,7 @@ export default {
       // 先月のはみだしスケジュール
       const weekOfFirstDay = new Date(year, month - 1, 1).getDay();
       const dayOfLatMonth = new Date(year, month - 1, 0).getDate();
-      const scheduleOfLastMonth = makeSchedule({
+      const scheduleLastMonth = makeSchedule({
         year,
         month: month - 1,
         days: [...Array(weekOfFirstDay).keys()].map(index => dayOfLatMonth - index).reverse(),
@@ -81,8 +81,8 @@ export default {
       });
 
       // 翌月のはみだしスケジュール
-      const firstDay = MAX_DAYS_OF_MONTH - scheduleOfMonth.length - scheduleOfLastMonth.length;
-      const scheduleOfNextMonth = makeSchedule({
+      const firstDay = MAX_DAYS_OF_MONTH - scheduleMonth.length - scheduleLastMonth.length;
+      const scheduleNextMonth = makeSchedule({
         year,
         month: month + 1,
         days: [...Array(firstDay).keys()].map(index => index + 1),
@@ -91,18 +91,12 @@ export default {
         holiday,
       });
 
-      return [...scheduleOfLastMonth, ...scheduleOfMonth, ...scheduleOfNextMonth].map((schedule, index) => ({
+      return [...scheduleLastMonth, ...scheduleMonth, ...scheduleNextMonth].map((schedule, index) => ({
         ...schedule,
         firstWeek: index < weeks.length,
         overview: overviews[index],
         week: weeks[index % 7],
       }));
-    },
-  },
-
-  watch: {
-    month() {
-      this.calenderAnimation();
     },
   },
 
@@ -136,20 +130,6 @@ export default {
       toggleModal: 'toggleModal',
       removeTask: 'removeTask',
     }),
-    calenderAnimation() {
-      requestAnimationFrame(() => {
-        TweenMax.fromTo(
-          this.$refs.schedule,
-          0.3,
-          {
-            transform: 'translateY(10px)',
-          },
-          {
-            transform: 'translateY(0)',
-          },
-        );
-      });
-    },
     scaleCell(date, $el) {
       const scheduleIndex = this.schedules.findIndex(schedule => schedule.date === date);
       this.overviews = this.overviews.map((overview, index) => index === scheduleIndex);

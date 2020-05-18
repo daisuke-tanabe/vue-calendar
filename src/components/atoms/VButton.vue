@@ -3,6 +3,8 @@
 </template>
 
 <script>
+const CLASS_NAME = 'button';
+
 export default {
   props: {
     skin: {
@@ -23,10 +25,8 @@ export default {
 
   computed: {
     classes: ({ $style, skin }) => {
-      const baseName = 'button';
-      const classArray = [$style[baseName]];
-      if (skin !== '') classArray.push($style[`${baseName}--${skin}`]);
-      return classArray;
+      const baseStyle = $style[CLASS_NAME];
+      return skin === '' ? baseStyle : [baseStyle, $style[`${CLASS_NAME}--${skin}`]];
     },
   },
 

@@ -83,7 +83,7 @@ button,
 input,
 select,
 textarea {
-  //appearance: none; 今は不要、今後カスタマイズするときはリセットするために復活させる
+  appearance: none;
   background-color: transparent;
   border: 0;
   font: inherit;

@@ -36,4 +36,7 @@ module.exports = {
     // 属性値にはハイフン付きの名前を強制する
     'vue/attribute-hyphenation': ['error', 'always'],
   },
+  settings: {
+    'import/resolver': 'webpack'
+  },
 };
