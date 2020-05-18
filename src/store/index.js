@@ -8,21 +8,37 @@ const today = new Date();
 
 export default new Vuex.Store({
   state: {
+    day: today.getDate(),
     holiday: {},
     month: today.getMonth() + 1,
-    year: today.getFullYear(),
-    day: today.getDate(),
-    visibleModal: false,
     targetDate: '',
     tasks: [],
+    year: today.getFullYear(),
+    visibleModal: false,
   },
 
   mutations: {
+    applyTask(state, name) {
+      state.tasks = [
+        ...state.tasks,
+        {
+          id: state.tasks.reduce((maxId, task) => Math.max(task.id, maxId), -1) + 1,
+          name,
+          date: state.targetDate,
+        },
+      ];
+    },
     decrease(state, { unit }) {
       state[unit] -= 1;
     },
     increase(state, { unit }) {
       state[unit] += 1;
+    },
+    removeTask(state, id) {
+      state.tasks = state.tasks.filter(task => task.id !== id);
+    },
+    setTasks(state, tasks) {
+      state.tasks = tasks;
     },
     updateHoliday(state, { data }) {
       state.holiday = data;
@@ -39,25 +55,12 @@ export default new Vuex.Store({
     updateTargetDate(state, date) {
       state.targetDate = date;
     },
-    setTasks(state, tasks) {
-      state.tasks = tasks;
-    },
-    applyTask(state, name) {
-      state.tasks = [
-        ...state.tasks,
-        {
-          id: state.tasks.reduce((maxId, task) => Math.max(task.id, maxId), -1) + 1,
-          name,
-          date: state.targetDate,
-        },
-      ];
-    },
-    removeTask(state, id) {
-      state.tasks = state.tasks.filter(task => task.id !== id);
-    },
   },
 
   actions: {
+    applyTask({ commit }, name) {
+      commit('applyTask', name);
+    },
     fetchHoliday({ commit }) {
       HolidaysDateRepository.get().then(({ data }) => {
         commit('updateHoliday', { data });
@@ -79,22 +82,19 @@ export default new Vuex.Store({
       }
       commit('decrease', { unit: 'month' });
     },
+    removeTask({ commit }, id) {
+      commit('removeTask', id);
+    },
     resetPage({ commit }) {
       commit('updateMonth', { month: today.getMonth() + 1 });
       commit('updateYear', { year: today.getFullYear() });
     },
-    toggleModal({ commit }, { isVisible, date }) {
-      commit('updateTargetDate', date);
-      commit('updateVisibleModal', isVisible);
-    },
     setTasks({ commit }, tasks) {
       commit('setTasks', tasks);
     },
-    applyTask({ commit }, name) {
-      commit('applyTask', name);
-    },
-    removeTask({ commit }, id) {
-      commit('removeTask', id);
+    toggleModal({ commit }, { isVisible, date }) {
+      commit('updateTargetDate', date);
+      commit('updateVisibleModal', isVisible);
     },
   },
 });

@@ -37,8 +37,8 @@ export default {
 
   methods: {
     ...mapActions({
-      toggleModal: 'toggleModal',
       applyTask: 'applyTask',
+      toggleModal: 'toggleModal',
     }),
     closeModal() {
       this.toggleModal({ date: '', isVisible: false });
@@ -59,6 +59,7 @@ export default {
   justify-content: center;
   position: fixed;
   width: 100%;
+  z-index: 100;
 }
 
 .underLayer {

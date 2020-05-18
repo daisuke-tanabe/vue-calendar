@@ -41,15 +41,15 @@ export default {
   },
 
   watch: {
-    year: {
-      handler(value) {
-        TweenMax.to(this.$data, 0.3, { tweenedYear: value });
-      },
-      immediate: true,
-    },
     month: {
       handler(value) {
         TweenMax.to(this.$data, 0.3, { tweenedMonth: value });
+      },
+      immediate: true,
+    },
+    year: {
+      handler(value) {
+        TweenMax.to(this.$data, 0.3, { tweenedYear: value });
       },
       immediate: true,
     },
