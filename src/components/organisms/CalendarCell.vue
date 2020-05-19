@@ -1,22 +1,20 @@
 <template>
-  <div :class="[$style.cell, { [$style['cell--gray']]: !schedule.current }]" @click="handleClickCell(schedule.date)">
-    <div :class="[$style.cell__container, { [$style['cell__container--scale']]: schedule.overview }]">
-      <div v-if="isVisibleWeek(schedule.firstWeek, schedule.overview)" :class="$style.week">{{ schedule.week }}</div>
-      <div :class="[$style.day, { [$style['day--active']]: schedule.day === today }]">{{ schedule.day }}</div>
-      <div v-if="isVisibleHoliday(schedule.holiday, schedule.overview)" :class="$style.holiday">
-        {{ schedule.holiday }}
-      </div>
+  <div :class="classesCell" @click="handleClickCell">
+    <div ref="cellContainer" :class="classesCellContainer">
+      <div v-if="isVisibleWeek" :class="[$style.week]">{{ week }}</div>
+      <div :class="classesDay">{{ day }}</div>
+      <div v-if="isVisibleHoliday" :class="$style.holiday">{{ holiday }}</div>
       <div :class="$style.taskList">
-        <div v-for="task in getTasks(schedule.tasks, schedule.overview)" :key="task.id" :class="$style.taskList__item">
+        <div v-for="task in visibleTask" :key="task.id" :class="$style.taskList__item">
           <div :class="$style.taskList__itemName">{{ task.name }}</div>
           <div :class="$style.taskList__itemRemoveButton" @click.stop="handleClickTaskRemoveButton(task.id)">×</div>
         </div>
         <div
-          v-show="isVisibleOverviewButton(schedule.tasks, schedule.overview)"
+          v-show="isVisibleOverviewButton"
           :class="$style.taskList__overviewButton"
-          @click.stop="handleClickTaskOverviewButton(schedule.date)"
+          @click.stop="handleClickTaskOverviewButton"
         >
-          他{{ getNumberOfOverflowTask(schedule.tasks) }}件
+          他{{ numberOfOverflowTask }}件
         </div>
       </div>
     </div>
@@ -39,21 +37,60 @@ export default {
     },
   },
 
-  methods: {
-    getNumberOfOverflowTask: tasks => tasks.length - MAX_TASK,
-    getTasks: (tasks, overview) => (overview ? tasks : tasks.slice(0, MAX_TASK)),
-    handleClickCell(date) {
-      this.$emit('on-click-cell', date);
+  computed: {
+    classesCell: ({ $style, current }) => [$style.cell, { [$style['cell--gray']]: !current }],
+    classesCellContainer: ({ $style, overview }) => [
+      $style.cell__container,
+      { [$style['cell__container--scale']]: overview },
+    ],
+    classesDay: ({ $style, day, today }) => [$style.day, { [$style['day--active']]: day === today }],
+    current: ({ schedule }) => schedule.current,
+    date: ({ schedule }) => schedule.date,
+    day: ({ schedule }) => schedule.day,
+    firstWeek: ({ schedule }) => schedule.firstWeek,
+    holiday: ({ schedule }) => schedule.holiday,
+    isVisibleOverviewButton: ({ overview, tasksLength }) => tasksLength > MAX_TASK && !overview,
+    isVisibleHoliday: ({ holiday, overview }) => holiday !== '' && !overview,
+    isVisibleWeek: ({ firstWeek, overview }) => firstWeek || overview,
+    numberOfOverflowTask: ({ tasksLength }) => tasksLength - MAX_TASK,
+    overview: ({ schedule }) => schedule.overview,
+    tasks: ({ schedule }) => schedule.tasks,
+    tasksLength: ({ tasks }) => tasks.length,
+    visibleTask: ({ overview, tasks }) => (overview ? tasks : tasks.slice(0, MAX_TASK)),
+    week: ({ schedule }) => schedule.week,
+  },
+
+  watch: {
+    overview() {
+      this.$nextTick(() => {
+        // 下部に余白をもたせるためのマジックナンバー
+        const PADDING = 12;
+        const bodyHeight = Math.floor(document.body.clientHeight);
+        const $container = this.$refs.cellContainer;
+        const containerRect = $container.getBoundingClientRect();
+        const containerRectBottom = Math.floor(containerRect.bottom);
+        const containerRectHeight = Math.floor(containerRect.height);
+        if (containerRectBottom > bodyHeight - PADDING) {
+          $container.style.top = `calc(-5% - ${containerRectBottom - bodyHeight + PADDING}px)`;
+          $container.style.height = `${containerRectHeight}px`;
+          return;
+        }
+        $container.style.top = '';
+        $container.style.height = '';
+      });
     },
-    handleClickTaskOverviewButton(date) {
-      this.$emit('on-click-task-overview-button', date, this.$el);
+  },
+
+  methods: {
+    handleClickCell() {
+      this.$emit('on-click-cell', this.date);
+    },
+    handleClickTaskOverviewButton() {
+      this.$emit('on-click-task-overview-button', this.date, this.$el);
     },
     handleClickTaskRemoveButton(taskId) {
       this.$emit('on-click-remove-task-button', taskId);
     },
-    isVisibleOverviewButton: (task, overview) => task.length > MAX_TASK && !overview,
-    isVisibleHoliday: (holiday, overview) => holiday !== '' && !overview,
-    isVisibleWeek: (firstWeek, overview) => firstWeek || overview,
   },
 };
 </script>
@@ -70,6 +107,7 @@ export default {
 
 .cell__container {
   height: 100%;
+  overflow: hidden;
   position: absolute;
   width: 100%;
 
@@ -80,6 +118,7 @@ export default {
     height: auto;
     left: -5%;
     min-height: 110%;
+    overflow: auto;
     top: -5%;
     width: 110%;
     z-index: 10;
@@ -88,7 +127,7 @@ export default {
 
 .week {
   font-size: 10px;
-  margin: 5px 0;
+  padding: 5px 0;
   text-align: center;
 }
 
