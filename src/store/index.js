@@ -1,20 +1,28 @@
 import Vuex from 'vuex';
 import Vue from 'vue';
+import zeroPadding from '~utilities/zeroPadding';
 import HolidaysDateRepository from '../assets/js/fetchApi';
 
 Vue.use(Vuex);
 
 const today = new Date();
+const todayDate = today.getDate();
+const todayMonth = today.getMonth() + 1;
+const todayYear = today.getFullYear();
 
 export default new Vuex.Store({
   state: {
-    day: today.getDate(),
+    day: todayDate,
     holiday: {},
-    month: today.getMonth() + 1,
+    month: todayMonth,
     targetDate: '',
     tasks: [],
-    year: today.getFullYear(),
+    year: todayYear,
     visibleModal: false,
+  },
+
+  getters: {
+    today: () => `${todayYear}-${zeroPadding(todayMonth)}-${zeroPadding(todayDate)}`,
   },
 
   mutations: {

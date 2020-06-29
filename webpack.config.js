@@ -81,6 +81,7 @@ module.exports = {
       '~': path.resolve(__dirname, 'src'),
       '~atoms': path.resolve(__dirname, 'src/components/atoms'),
       '~organisms': path.resolve(__dirname, 'src/components/organisms'),
+      '~utilities': path.resolve(__dirname, 'src/utilities'),
     },
   },
 };

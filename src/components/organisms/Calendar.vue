@@ -4,7 +4,7 @@
       <CalendarCell
         v-for="schedule in schedules"
         :key="schedule.date"
-        :today="day"
+        :today="today"
         :schedule="schedule"
         @on-click-cell="showModal"
         @on-click-remove-task-button="removeTask"
@@ -15,20 +15,17 @@
 </template>
 
 <script>
-import { mapActions, mapState } from 'vuex';
+import { mapActions, mapGetters, mapState } from 'vuex';
 import WEEKS from '~/constants/weeks';
 import CalendarCell from '~organisms/CalendarCell.vue';
+import zeroPadding from '~utilities/zeroPadding';
 
 // 1月に最大42日分表示する（6週間 * 7 = 42）
 const MAX_DAYS_OF_MONTH = 42;
 
-function addZeroPadding(num) {
-  return `${num}`.padStart(2, '0');
-}
-
 function makeSchedule({ year, month, days, current, holiday, tasks }) {
   return days.map((day) => {
-    const date = `${year}-${addZeroPadding(month)}-${addZeroPadding(day)}`;
+    const date = `${year}-${zeroPadding(month)}-${zeroPadding(day)}`;
     const filteredByDateTask = tasks.filter((task) => task.date === date);
     return { day, current, date, holiday: holiday[date] || '', tasks: filteredByDateTask };
   });
@@ -49,13 +46,8 @@ export default {
   },
 
   computed: {
-    ...mapState({
-      year: 'year',
-      month: 'month',
-      day: 'day',
-      holiday: 'holiday',
-      tasks: 'tasks',
-    }),
+    ...mapGetters(['today']),
+    ...mapState(['year', 'month', 'day', 'holiday', 'tasks']),
     // 今月、先月、翌月のスケジュールをマージしたもの
     schedules: ({ year, month, holiday, tasks, weeks, overviews }) => {
       // 今月のスケジュール

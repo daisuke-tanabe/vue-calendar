@@ -32,7 +32,7 @@ export default {
       required: true,
     },
     today: {
-      type: Number,
+      type: String,
       required: true,
     },
   },
@@ -43,7 +43,7 @@ export default {
       $style.cell__container,
       { [$style['cell__container--scale']]: overview },
     ],
-    classesDay: ({ $style, day, today }) => [$style.day, { [$style['day--active']]: day === today }],
+    classesDay: ({ $style, date, today }) => [$style.day, { [$style['day--active']]: date === today }],
     current: ({ schedule }) => schedule.current,
     date: ({ schedule }) => schedule.date,
     day: ({ schedule }) => schedule.day,
