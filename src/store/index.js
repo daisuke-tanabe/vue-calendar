@@ -92,8 +92,10 @@ export default new Vuex.Store({
     setTasks({ commit }, tasks) {
       commit('setTasks', tasks);
     },
-    toggleModal({ commit }, { isVisible, date }) {
+    setTargetDate({ commit }, date) {
       commit('updateTargetDate', date);
+    },
+    toggleModal({ commit }, isVisible) {
       commit('updateVisibleModal', isVisible);
     },
   },

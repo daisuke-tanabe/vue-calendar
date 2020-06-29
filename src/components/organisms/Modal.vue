@@ -1,16 +1,27 @@
 <template>
-  <div :class="$style.wrapper">
-    <div :class="$style.underLayer" @click="closeModal"></div>
-    <div :class="$style.modal">
-      <button :class="$style.modal__closeButton" @click="closeModal">×</button>
-      <div :class="$style.modal__saveButton">
-        <VButton skin="primary" text="保存" @on-click="saveTask" />
+  <div>
+    <transition
+      name="fade-modal"
+      appear
+      @before-enter="beforeEnter"
+      @after-enter="afterEnter"
+      @before-leave="beforeLeave"
+      @after-leave="afterLeave"
+    >
+      <div v-show="visibleModal" :class="$style.wrapper">
+        <div :class="$style.underLayer" @click="closeModal"></div>
+        <div :class="$style.modal">
+          <button :class="$style.modal__closeButton" @click="closeModal">×</button>
+          <div :class="$style.modal__saveButton">
+            <VButton skin="primary" text="保存" @on-click="saveTask" />
+          </div>
+          <div :class="$style.modal__date">{{ targetDate }}</div>
+          <div :class="$style.modal__input">
+            <input v-model="text" type="text" autocomplete="off" placeholder="タスクを入力" />
+          </div>
+        </div>
       </div>
-      <div :class="$style.modal__date">{{ targetDate }}</div>
-      <div :class="$style.modal__input">
-        <input v-model="text" type="text" autocomplete="off" placeholder="タスクを入力" />
-      </div>
-    </div>
+    </transition>
   </div>
 </template>
 
@@ -25,6 +36,7 @@ export default {
 
   data() {
     return {
+      enabled: true,
       text: '',
     };
   },
@@ -32,20 +44,35 @@ export default {
   computed: {
     ...mapState({
       targetDate: 'targetDate',
+      visibleModal: 'visibleModal',
     }),
   },
 
   methods: {
     ...mapActions({
       applyTask: 'applyTask',
+      setTargetDate: 'setTargetDate',
       toggleModal: 'toggleModal',
     }),
+    afterEnter() {
+      this.enabled = true;
+    },
+    afterLeave() {
+      this.setTargetDate('');
+      this.enabled = true;
+    },
+    beforeEnter() {
+      this.enabled = false;
+    },
+    beforeLeave() {
+      this.enabled = false;
+    },
     closeModal() {
-      this.toggleModal({ date: '', isVisible: false });
+      this.toggleModal(false);
     },
     saveTask() {
-      if (this.text !== '') this.applyTask(this.text);
-      this.toggleModal({ date: '', isVisible: false });
+      if (this.text !== '' && this.enabled) this.applyTask(this.text);
+      this.closeModal();
     },
   },
 };
@@ -57,9 +84,17 @@ export default {
   display: flex;
   height: 100%;
   justify-content: center;
+  left: 0;
   position: fixed;
+  top: 0;
+  transition: all 0.3s ease;
   width: 100%;
   z-index: 100;
+
+  &:global(.fade-modal-enter),
+  &:global(.fade-modal-leave-to) {
+    opacity: 0;
+  }
 }
 
 .underLayer {
