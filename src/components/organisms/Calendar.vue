@@ -126,6 +126,7 @@ export default {
   methods: {
     ...mapActions({
       fetchHoliday: 'fetchHoliday',
+      setTargetDate: 'setTargetDate',
       setTasks: 'setTasks',
       toggleModal: 'toggleModal',
       removeTask: 'removeTask',
@@ -145,7 +146,8 @@ export default {
     },
     showModal(date) {
       const isEnabledOverview = this.schedules.some((schedule) => schedule.overview);
-      this.toggleModal({ date, isVisible: !isEnabledOverview });
+      this.setTargetDate(date);
+      this.toggleModal(!isEnabledOverview);
     },
   },
 };
