@@ -16,13 +16,7 @@ module.exports = {
     'node': true
   },
   rules: {
-    'max-len': ['error', { code: 120, tabWidth: 2 }],
-    'no-new': 'off',
-
-    // 括弧が省略可能ならよしとする
-    'arrow-parens': ['error', 'as-needed'],
-
-    // vuexのstateは変更する必要があるのでignoreした
+    // vuexのstateは引数変更を許可変更しないと書きづらい
     'no-param-reassign': ['error', {
       props: true,
       ignorePropertyModificationsFor: ['state'],

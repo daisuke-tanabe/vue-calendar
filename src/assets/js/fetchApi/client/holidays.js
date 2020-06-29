@@ -8,13 +8,13 @@ const instance = axios.create({ baseURL: BASE_URL });
 
 // 共通レスポンス処理
 instance.interceptors.response.use(
-  response => {
+  (response) => {
     if (response.status === 200) return response;
     return Promise.reject(new Error(`Response status ${response.status}`));
   },
-  error => {
+  (error) => {
     throw error;
-  },
+  }
 );
 
 export default instance;

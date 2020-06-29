@@ -27,9 +27,9 @@ function addZeroPadding(num) {
 }
 
 function makeSchedule({ year, month, days, current, holiday, tasks }) {
-  return days.map(day => {
+  return days.map((day) => {
     const date = `${year}-${addZeroPadding(month)}-${addZeroPadding(day)}`;
-    const filteredByDateTask = tasks.filter(task => task.date === date);
+    const filteredByDateTask = tasks.filter((task) => task.date === date);
     return { day, current, date, holiday: holiday[date] || '', tasks: filteredByDateTask };
   });
 }
@@ -62,7 +62,7 @@ export default {
       const scheduleMonth = makeSchedule({
         year,
         month,
-        days: [...Array(new Date(year, month, 0).getDate()).keys()].map(index => index + 1),
+        days: [...Array(new Date(year, month, 0).getDate()).keys()].map((index) => index + 1),
         tasks,
         current: true,
         holiday,
@@ -74,7 +74,7 @@ export default {
       const scheduleLastMonth = makeSchedule({
         year,
         month: month - 1,
-        days: [...Array(weekOfFirstDay).keys()].map(index => dayOfLatMonth - index).reverse(),
+        days: [...Array(weekOfFirstDay).keys()].map((index) => dayOfLatMonth - index).reverse(),
         tasks,
         current: false,
         holiday,
@@ -85,7 +85,7 @@ export default {
       const scheduleNextMonth = makeSchedule({
         year,
         month: month + 1,
-        days: [...Array(firstDay).keys()].map(index => index + 1),
+        days: [...Array(firstDay).keys()].map((index) => index + 1),
         tasks,
         current: false,
         holiday,
@@ -116,10 +116,10 @@ export default {
       }
     }
     this.$store.watch(
-      state => state.tasks,
-      value => {
+      (state) => state.tasks,
+      (value) => {
         localStorage.setItem(TASKS, JSON.stringify(value));
-      },
+      }
     );
   },
 
@@ -131,10 +131,10 @@ export default {
       removeTask: 'removeTask',
     }),
     scaleCell(date, $el) {
-      const scheduleIndex = this.schedules.findIndex(schedule => schedule.date === date);
+      const scheduleIndex = this.schedules.findIndex((schedule) => schedule.date === date);
       this.overviews = this.overviews.map((overview, index) => index === scheduleIndex);
       const bindEvent = {
-        click: event => {
+        click: (event) => {
           if (!$el.contains(event.target)) {
             this.overviews = this.overviews.map(() => false);
             window.removeEventListener('click', bindEvent.click);
@@ -144,7 +144,7 @@ export default {
       window.addEventListener('click', bindEvent.click);
     },
     showModal(date) {
-      const isEnabledOverview = this.schedules.some(schedule => schedule.overview);
+      const isEnabledOverview = this.schedules.some((schedule) => schedule.overview);
       this.toggleModal({ date, isVisible: !isEnabledOverview });
     },
   },
