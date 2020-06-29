@@ -3,9 +3,10 @@ import Vue from 'vue';
 import Home from './components/pages/Home.vue';
 import store from './store';
 
-new Vue({
-  el: '#js-app',
+const app = new Vue({
   components: { Home },
   store,
   template: '<Home />',
 });
+
+app.$mount('.js-app');
