@@ -1,14 +1,15 @@
 const path = require('path');
 const Sass = require('sass');
 const Fiber = require('fibers');
-const VueLoaderPlugin = require('vue-loader/lib/plugin');
+const { DefinePlugin } = require('webpack');
+const { VueLoaderPlugin } = require('vue-loader');
 
 const mode = process.env.NODE_ENV;
 const isProduction = mode === 'production';
 const excludeNodeModules = /node_modules/;
 
 const entry = {
-  'index.js': './index.js',
+  'index.js': './index.ts',
 };
 
 module.exports = {
@@ -32,7 +33,7 @@ module.exports = {
     rules: [
       {
         enforce: 'pre',
-        test: /\.(vue|js)$/,
+        test: /\.(vue|ts)$/,
         exclude: excludeNodeModules,
         loader: 'eslint-loader',
       },
@@ -42,9 +43,12 @@ module.exports = {
         loader: 'vue-loader',
       },
       {
-        test: /\.js$/,
+        test: /\.ts$/,
         exclude: excludeNodeModules,
-        loader: 'babel-loader',
+        loader: 'ts-loader',
+        options: {
+          appendTsSuffixTo: [/\.vue$/],
+        },
       },
       {
         test: /\.scss$/,
@@ -75,14 +79,16 @@ module.exports = {
       },
     ],
   },
-  plugins: [new VueLoaderPlugin()],
+  plugins: [
+    new VueLoaderPlugin(),
+    new DefinePlugin({
+      __VUE_OPTIONS_API__: true,
+      __VUE_PROD_DEVTOOLS__: false,
+    }),
+  ],
   resolve: {
-    alias: {
-      vue$: 'vue/dist/vue.esm.js',
-      '~': path.resolve(__dirname, 'src'),
-      '~atoms': path.resolve(__dirname, 'src/components/atoms'),
-      '~organisms': path.resolve(__dirname, 'src/components/organisms'),
-      '~utilities': path.resolve(__dirname, 'src/utilities'),
-    },
+    // import文で省略を許可する拡張子
+    extensions: ['.ts', '.tsx', '.js', '.jsx'],
+    alias: { vue: 'vue/dist/vue.esm-bundler.js' },
   },
 };
