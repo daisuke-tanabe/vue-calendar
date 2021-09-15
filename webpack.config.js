@@ -20,7 +20,11 @@ module.exports = {
     filename: '[name]',
   },
   devServer: {
-    contentBase: './public',
+    static: {
+      staticOptions: {
+        contentBase: './public',
+      }
+    },
     historyApiFallback: true,
     port: '8080',
   },
@@ -57,9 +61,6 @@ module.exports = {
           },
           {
             loader: 'postcss-loader',
-            options: {
-              ident: 'postcss',
-            },
           },
           {
             loader: 'sass-loader',
