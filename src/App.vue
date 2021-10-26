@@ -43,9 +43,7 @@ export default defineComponent({
         month,
         day,
         isCurrentDay:
-          currentDay.value === day &&
-          currentMonth.value === displayedMonth.value &&
-          currentYear.value === displayedYear.value,
+          currentDay.value === day && currentMonth.value === month && currentYear.value === displayedYear.value,
       }));
     };
 
